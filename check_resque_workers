@@ -1,0 +1,36 @@
+#!/bin/bash
+## check_resque_workers for check_resque_workers in /Users/scalp/nagios/check_resque_workers
+##
+## Made by Anthony Scalisi
+## <scalisi.a@gmail.com>
+##
+## Started on  Fri Dec 7 10:15:47 2012 Anthony Scalisi
+## Last update ri Dec 7 10:20:20 2012 Anthony Scalisi
+##
+
+OK_STATE=0
+WARNING_STATE=1
+CRITICAL_STATE=2
+UNKNOWN_STATE=3
+EXPECTED_ARGS=1
+E_BADARGS=65
+
+if [ $# -ne $EXPECTED_ARGS ]
+then
+    echo "Usage: `basename $0` [number of workers expected]"
+    exit ${UNKNOWN_STATE}
+    exit $E_BADARGS
+fi
+
+count_resque_workers=`ps awwx | egrep resque:work | egrep -v "(grep|nagios|check_total_procs_solaris)" | wc -l`
+
+if [[ "$count_resque_workers" -ge "$1" ]]; then
+	echo "OK - $count_resque_workers resque workers running"
+	exit ${OK_STATE}
+elif [[ "$count_resque_workers" -lt $1 ]]; then
+	echo "CRITICAL - only $count_resque_workers resque workers are running !"
+	exit ${CRITICAL_STATE}
+else
+    echo "UNKNOWN - Could not figure resque workers status. Please check it out ASAP."
+    exit ${UNKNOW_STATE}
+fi
